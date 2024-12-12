@@ -14,7 +14,7 @@ targets  = ["riscv32imc-unknown-none-elf"]
 [dependencies]
 defmt             = { version = "0.3.8", optional = true }
 document-features = "0.2.10"
-esp-hal           = "0.20.1"
+esp-hal           = "0.22.0"
 fugit             = "0.3.7"
 
 [dev-dependencies]
@@ -23,7 +23,7 @@ esp-backtrace = { version = "0.14.1", features = [
   "panic-handler",
   "println",
 ] }
-esp-println = "0.11.0"
+esp-println = "0.12.0"
 
 [features]
 ## Implement `defmt::Format` on certain types.
@@ -44,7 +44,3 @@ esp32h2 = ["esp-backtrace/esp32h2", "esp-hal/esp32h2", "esp-println/esp32h2"]
 esp32s2 = ["esp-backtrace/esp32s2", "esp-hal/esp32s2", "esp-println/esp32s2"]
 ## Target the ESP32-S3.
 esp32s3 = ["esp-backtrace/esp32s3", "esp-hal/esp32s3", "esp-println/esp32s3"]
-
-# Patch until next esp-hal release
-[patch.crates-io]
-esp-hal = { git = "https://github.com/esp-rs/esp-hal", rev = "a787a13" }

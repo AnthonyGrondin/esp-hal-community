@@ -8,17 +8,14 @@
 //! ## Example
 //!
 //! ```rust,ignore
-//! let io = Io::new(peripherals.GPIO, peripherals.IO_MUX);
-//!
-//! let mut ledc = Ledc::new(peripherals.LEDC, &clocks);
+//! let mut ledc = Ledc::new(peripherals.LEDC);
 //! ledc.set_global_slow_clock(LSGlobalClkSource::APBClk);
 //!
 //! let mut buzzer = Buzzer::new(
 //!     &ledc,
 //!     timer::Number::Timer0,
 //!     channel::Number::Channel1,
-//!     io.pins.gpio6,
-//!     &clocks,
+//!     peripherals.GPIO6
 //! );
 //!
 //! // Play a 1000Hz frequency
@@ -140,7 +137,7 @@ impl<'a, O: OutputPin + Peripheral<P = O>> Buzzer<'a, O> {
         channel_number: channel::Number,
         output_pin: impl Peripheral<P = O> + 'a,
     ) -> Self {
-        let timer = ledc.get_timer(timer_number);
+        let timer = ledc.timer(timer_number);
         Self {
             timer,
             channel_number,
