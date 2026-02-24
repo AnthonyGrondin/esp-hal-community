@@ -233,20 +233,30 @@ impl<'a> Buzzer<'a> {
         if !self.timer.is_configured() {
             return;
         }
-        let mut channel = Channel::new(self.channel_number, unsafe {
-            self.output_pin.clone_unchecked()
+
+        let regs = esp_hal::peripherals::LEDC::regs();
+
+        #[cfg(feature = "esp32")]
+        // Safety: We use LowSpeed in buzzer so we're sure that lsch is the one used
+        let channel = regs.lsch(self.channel_number as usize);
+        #[cfg(not(feature = "esp32"))]
+        let channel = regs.ch(self.channel_number as usize);
+
+        channel.conf0().write(|w| {
+            w.sig_out_en().clear_bit();
+            w.idle_lv().clear_bit();
+            w.para_up().set_bit()
         });
-        // Safety:
-        // - Error::Duty cannot happen, we hardcode 0 which is valid
-        // - Error::Channel cannot happen, channel is configured below
-        // - Error::Timer cannot happen, it's an early return no-op above
-        channel
-            .configure(channel::config::Config {
-                timer: &self.timer,
-                duty_pct: 0,
-                drive_mode: DriveMode::PushPull,
-            })
-            .unwrap()
+
+        #[cfg(feature = "esp32")]
+        let timer = regs.lstimer(self.timer.number() as usize);
+        #[cfg(not(feature = "esp32"))]
+        let timer = regs.timer(self.timer.number() as usize);
+
+        timer.conf().write(|w| {
+            w.pause().set_bit();
+            w.para_up().set_bit()
+        });
     }
 
     /// Play a frequency through the buzzer
